@@ -1,24 +1,39 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import {
-  LayoutDashboard,
-  BarChart2,
-  Settings,
-  Leaf,
-  Shield,
-} from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { LayoutDashboard, BarChart2, Settings, Leaf, Shield, LogOut, User } from 'lucide-react'
 
 const NAV = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/dashboard/log', icon: BarChart2, label: 'Activity Log' },
-  { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
+  { href: '/dashboard',          icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/dashboard/log',      icon: BarChart2,       label: 'Activity Log' },
+  { href: '/dashboard/settings', icon: Settings,        label: 'Settings' },
 ]
+
+type AuthUser = { username: string; isGuest: boolean } | null
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const [user, setUser] = useState<AuthUser>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    const raw = localStorage.getItem('carbon_user')
+    if (raw) {
+      try { setUser(JSON.parse(raw)) } catch { setUser(null) }
+    }
+  }, [pathname]) // re-check whenever route changes so sidebar updates immediately after login
+
+  const handleSignOut = () => {
+    localStorage.removeItem('carbon_user')
+    setUser(null)
+    router.push('/')
+  }
+
+  const isGuest = !mounted || !user || user.isGuest
 
   return (
     <div className="flex min-h-screen bg-[oklch(10%_0.008_240)] text-white">
@@ -55,37 +70,63 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        {/* Secure Progress CTA */}
+        {/* Bottom panel — switches between Guest CTA and User card */}
         <div className="p-3">
-          <div className="rounded-xl border border-emerald-500/15 bg-emerald-500/8 p-4">
-            <div className="mb-1 flex items-center gap-2 text-emerald-400">
-              <Shield className="h-4 w-4" />
-              <span className="text-xs font-semibold uppercase tracking-wider">Guest Session</span>
+          {isGuest ? (
+            /* Guest session */
+            <div className="rounded-xl border border-emerald-500/15 bg-emerald-500/8 p-4">
+              <div className="mb-1 flex items-center gap-2 text-emerald-400">
+                <Shield className="h-4 w-4" />
+                <span className="text-xs font-semibold uppercase tracking-wider">Guest Session</span>
+              </div>
+              <p className="mb-3 text-xs text-white/40 leading-relaxed">
+                Create an account to save your progress and track over time.
+              </p>
+              <Link
+                href="/login"
+                className="block rounded-lg bg-emerald-500 py-2 text-center text-xs font-bold text-white transition-all hover:bg-emerald-400"
+              >
+                Secure My Progress
+              </Link>
             </div>
-            <p className="mb-3 text-xs text-white/40 leading-relaxed">
-              Create an account to save your progress and track over time.
-            </p>
-            <Link
-              href="/login"
-              className="block rounded-lg bg-emerald-500 py-2 text-center text-xs font-bold text-white transition-all hover:bg-emerald-400"
-            >
-              Secure My Progress
-            </Link>
-          </div>
+          ) : (
+            /* Logged-in user card */
+            <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4">
+              <div className="mb-3 flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+                  <User className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-white">{user?.username}</p>
+                  <p className="text-xs text-emerald-400">Account secured ✓</p>
+                </div>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-white/8 py-1.5 text-xs font-medium text-white/40 transition-all hover:border-red-500/30 hover:text-red-400"
+              >
+                <LogOut className="h-3.5 w-3.5" /> Sign out
+              </button>
+            </div>
+          )}
         </div>
       </aside>
 
       {/* Mobile top bar */}
-      <div className="fixed inset-x-0 top-0 z-20 flex h-14 items-center justify-between border-b border-white/5 bg-[oklch(12%_0.009_240)/80] px-4 backdrop-blur-xl md:hidden">
+      <div className="fixed inset-x-0 top-0 z-20 flex h-14 items-center justify-between border-b border-white/5 bg-[oklch(12%_0.009_240)]/80 px-4 backdrop-blur-xl md:hidden">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-emerald-500 to-teal-400">
             <Leaf className="h-3.5 w-3.5 text-white" />
           </div>
           <span className="text-sm font-bold">Carbon<span className="text-emerald-400">Sphere</span></span>
         </div>
-        <Link href="/login" className="rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-medium text-emerald-400">
-          Secure Progress
-        </Link>
+        {isGuest ? (
+          <Link href="/login" className="rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-medium text-emerald-400">
+            Secure Progress
+          </Link>
+        ) : (
+          <span className="text-xs font-medium text-emerald-400">{user?.username} ✓</span>
+        )}
       </div>
 
       {/* Main */}

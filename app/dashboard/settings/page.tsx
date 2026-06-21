@@ -2,17 +2,31 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { User, RefreshCcw, Shield, Bell, Palette } from 'lucide-react'
+import { User, RefreshCcw, Shield, Bell, Palette, LogOut } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+
+type AuthUser = { username: string; isGuest: boolean } | null
 
 export default function SettingsPage() {
   const [baseline, setBaseline] = useState<number | null>(null)
   const [notifications, setNotifications] = useState(true)
+  const [user, setUser] = useState<AuthUser>(null)
+  const router = useRouter()
 
   useEffect(() => {
     const b = localStorage.getItem('carbon_baseline')
     if (b) setBaseline(parseFloat(b))
+    const raw = localStorage.getItem('carbon_user')
+    if (raw) { try { setUser(JSON.parse(raw)) } catch {} }
   }, [])
+
+  const handleSignOut = () => {
+    localStorage.removeItem('carbon_user')
+    router.push('/')
+  }
+
+  const isGuest = !user || user.isGuest
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -29,13 +43,34 @@ export default function SettingsPage() {
           </div>
           <h2 className="font-semibold text-white">Account</h2>
         </div>
-        <div className="rounded-xl border border-amber-500/20 bg-amber-500/8 p-4">
-          <p className="text-sm text-amber-300 font-medium mb-1">Guest Session Active</p>
-          <p className="text-xs text-white/40 mb-3">Your data is saved locally. Create an account to back it up to the cloud and access it anywhere.</p>
-          <Link href="/login" className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-xs font-bold text-black transition-all hover:bg-amber-400">
-            <Shield className="h-3.5 w-3.5" /> Create Account
-          </Link>
-        </div>
+
+        {isGuest ? (
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/8 p-4">
+            <p className="text-sm text-amber-300 font-medium mb-1">Guest Session Active</p>
+            <p className="text-xs text-white/40 mb-3">Your data is saved locally. Create an account to back it up to the cloud and access it anywhere.</p>
+            <Link href="/login" className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-xs font-bold text-black transition-all hover:bg-amber-400">
+              <Shield className="h-3.5 w-3.5" /> Create Account
+            </Link>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 text-lg font-bold">
+                {user?.username?.[0]?.toUpperCase()}
+              </div>
+              <div>
+                <p className="font-semibold text-white">{user?.username}</p>
+                <p className="text-xs text-emerald-400">Account secured ✓</p>
+              </div>
+            </div>
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-xs font-medium text-white/50 transition-all hover:border-red-500/30 hover:text-red-400"
+            >
+              <LogOut className="h-3.5 w-3.5" /> Sign out
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Footprint */}

@@ -14,7 +14,9 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 1200))
+    await new Promise((r) => setTimeout(r, 1000))
+    // Persist auth state client-side
+    localStorage.setItem('carbon_user', JSON.stringify({ username, isGuest: false }))
     setLoading(false)
     router.push('/dashboard')
   }
