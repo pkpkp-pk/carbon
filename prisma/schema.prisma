@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  username      String?   @unique
+  password_hash String?
+  grn_id        String    @unique
+  is_guest      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  onboarding    OnboardingResponse?
+  logs          DailyLog[]
+}
+
+model OnboardingResponse {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Location
+  country     String
+  regionType  String   // urban/suburban/rural
+  
+  // Transport
+  transportModes String // JSON or comma separated
+  weeklyKm    Float
+  flightsYear Int
+  
+  // Diet
+  dietType    String   // vegan, vegetarian, pescatarian, meat-eater
+  foodSourcing String  // local, organic, delivery
+  
+  // Home
+  homeType    String
+  homeSize    String
+  energySource String
+  heatingSystem String
+  householdSize Int
+  
+  // Shopping
+  monthlySpend Float
+  consumptionModifiers String
+  
+  // Calculated
+  baselineKgCo2PerYear Float
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model DailyLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  category    String   // e.g., transport, food, energy
+  action      String   // e.g., cycled to work, ate vegetarian meal
+  kgCo2Impact Float    // Positive or negative impact
+  
+  createdAt   DateTime @default(now())
+}
