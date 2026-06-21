@@ -15,6 +15,7 @@ export default function SettingsPage() {
   const router = useRouter()
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const b = localStorage.getItem('carbon_baseline')
     if (b) setBaseline(parseFloat(b))
     const raw = localStorage.getItem('carbon_user')

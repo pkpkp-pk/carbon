@@ -70,8 +70,8 @@ export default function Login() {
       <div className="pointer-events-none absolute bottom-0 right-0 h-80 w-80 rounded-full bg-sky-500/8 blur-[100px]" />
 
       <div className="relative w-full max-w-sm">
-        <Link href="/dashboard" className="mb-8 flex items-center gap-2 text-sm text-white/40 transition-colors hover:text-white">
-          <ArrowLeft className="h-4 w-4" /> Back to dashboard
+        <Link href="/dashboard" className="mb-8 flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to dashboard
         </Link>
 
         <div className="mb-8 flex items-center gap-2">
@@ -99,26 +99,26 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-white/60">Username</label>
+              <label htmlFor="username" className="mb-1.5 block text-sm font-medium text-white/80">Username</label>
               <input
-                type="text" required minLength={3} maxLength={30}
+                id="username" type="text" required minLength={3} maxLength={30}
                 placeholder="e.g. greenwarrior42"
-                className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-white placeholder-white/20 transition-all focus:border-emerald-500/50 focus:outline-none focus:bg-white/[0.07]"
+                className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-white placeholder-white/40 transition-all focus:border-emerald-500/50 focus:outline-none focus:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-emerald-500"
                 value={username} onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-white/60">Password</label>
+              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-white/80">Password</label>
               <input
-                type="password" required minLength={6}
+                id="password" type="password" required minLength={6}
                 placeholder="Min 6 characters"
-                className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-white placeholder-white/20 transition-all focus:border-emerald-500/50 focus:outline-none focus:bg-white/[0.07]"
+                className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-white placeholder-white/40 transition-all focus:border-emerald-500/50 focus:outline-none focus:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-emerald-500"
                 value={password} onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <button
               type="submit" disabled={loading}
-              className="mt-2 w-full rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 py-3 font-bold text-white shadow-lg shadow-emerald-500/20 transition-all hover:from-emerald-500 hover:to-teal-500 hover:scale-[1.02] active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-2 w-full rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 py-3 font-bold text-white shadow-lg shadow-emerald-500/20 transition-all hover:from-emerald-500 hover:to-teal-500 hover:scale-[1.02] active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[oklch(10%_0.008_240)]"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

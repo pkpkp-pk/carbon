@@ -25,10 +25,10 @@ const TRANSPORT_OPTIONS = [
 ]
 
 const OPTION_CLS = (active: boolean) =>
-  `cursor-pointer rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200 select-none ${
+  `cursor-pointer rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${
     active
       ? 'border-emerald-500/60 bg-emerald-500/15 text-emerald-300'
-      : 'border-white/10 bg-white/[0.03] text-white/60 hover:border-white/20 hover:text-white/80'
+      : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/20 hover:text-white/90'
   }`
 
 function OptionGroup<T extends string>({
@@ -37,7 +37,7 @@ function OptionGroup<T extends string>({
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
       {options.map((o) => (
-        <button key={o.val} onClick={() => onChange(o.val)} className={OPTION_CLS(value === o.val)}>
+        <button type="button" key={o.val} aria-pressed={value === o.val} onClick={() => onChange(o.val)} className={OPTION_CLS(value === o.val)}>
           {o.label}
         </button>
       ))}
@@ -58,10 +58,11 @@ function Slider({ label, value, min, max, step, unit, onChange }: {
       <input
         type="range" min={min} max={max} step={step} value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full h-2 rounded-full appearance-none cursor-pointer"
+        className="w-full h-2 rounded-full appearance-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[oklch(18%_0.012_240)]"
         style={{ background: `linear-gradient(to right, oklch(62% 0.19 160) ${pct}%, oklch(32% 0.02 240) ${pct}%)` }}
+        aria-label={label}
       />
-      <div className="mt-1 flex justify-between text-xs text-white/20">
+      <div className="mt-1 flex justify-between text-xs text-white/40">
         <span>{min}</span><span>{max}</span>
       </div>
     </div>
@@ -90,10 +91,11 @@ function TransportBuilder({ modes, onChange }: {
         </p>
         {modes.length < TRANSPORT_OPTIONS.length && (
           <button
+            type="button"
             onClick={addMode}
-            className="flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-400 transition-all hover:bg-emerald-500/20"
+            className="flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-400 transition-all hover:bg-emerald-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
           >
-            <Plus className="h-3 w-3" /> Add mode
+            <Plus className="h-3 w-3" aria-hidden="true" /> Add mode
           </button>
         )}
       </div>
@@ -109,17 +111,18 @@ function TransportBuilder({ modes, onChange }: {
           >
             <div className="flex items-center justify-between">
               <select
+                aria-label="Transport Mode"
                 value={m.mode}
                 onChange={e => updateMode(i, 'mode', e.target.value)}
-                className="rounded-lg border border-white/10 bg-[oklch(18%_0.012_240)] px-3 py-2 text-sm text-white focus:border-emerald-500/50 focus:outline-none"
+                className="rounded-lg border border-white/10 bg-[oklch(18%_0.012_240)] px-3 py-2 text-sm text-white focus:border-emerald-500/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
               >
                 {TRANSPORT_OPTIONS.map(o => (
                   <option key={o.val} value={o.val} style={{ backgroundColor: '#1e293b', color: '#fff' }}>{o.label}</option>
                 ))}
               </select>
               {modes.length > 1 && (
-                <button onClick={() => removeMode(i)} className="flex h-7 w-7 items-center justify-center rounded-lg text-white/30 hover:bg-red-500/10 hover:text-red-400 transition-colors">
-                  <Minus className="h-3.5 w-3.5" />
+                <button type="button" aria-label="Remove transport mode" onClick={() => removeMode(i)} className="flex h-7 w-7 items-center justify-center rounded-lg text-white/50 hover:bg-red-500/10 hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
+                  <Minus className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
               )}
             </div>
@@ -237,7 +240,8 @@ export default function Onboarding() {
                   <div>
                     <label className="mb-2 block text-sm font-medium text-white/60">Country</label>
                     <select
-                      className="w-full rounded-xl border border-white/10 bg-[oklch(18%_0.012_240)] px-4 py-3 text-white focus:border-emerald-500/50 focus:outline-none appearance-none"
+                      aria-label="Country"
+                      className="w-full rounded-xl border border-white/10 bg-[oklch(18%_0.012_240)] px-4 py-3 text-white focus:border-emerald-500/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 appearance-none"
                       value={data.country}
                       onChange={(e) => set('country', e.target.value)}
                       style={{ colorScheme: 'dark' }}
@@ -255,7 +259,7 @@ export default function Onboarding() {
                   <div>
                     <label className="mb-2 block text-sm font-medium text-white/60">Area type</label>
                     <OptionGroup
-                      value={data.regionType as any}
+                      value={data.regionType as string}
                       options={[
                         { label: '🏙️ Urban', val: 'Urban' },
                         { label: '🏘️ Suburban', val: 'Suburban' },
@@ -285,7 +289,7 @@ export default function Onboarding() {
                 <div>
                   <label className="mb-2 block text-sm font-medium text-white/60">Diet type</label>
                   <OptionGroup
-                    value={data.dietType as any}
+                    value={data.dietType as string}
                     options={[
                       { label: '🌱 Vegan', val: 'Vegan' },
                       { label: '🥗 Vegetarian', val: 'Vegetarian' },
@@ -303,7 +307,7 @@ export default function Onboarding() {
                   <div>
                     <label className="mb-2 block text-sm font-medium text-white/60">Energy source</label>
                     <OptionGroup
-                      value={data.energySource as any}
+                      value={data.energySource as string}
                       options={[
                         { label: '⚡ Grid (Mixed)', val: 'Grid' },
                         { label: '☀️ Renewable', val: 'Renewable' },
@@ -319,7 +323,7 @@ export default function Onboarding() {
                   <div>
                     <label className="mb-2 block text-sm font-medium text-white/60">Home size</label>
                     <OptionGroup
-                      value={data.homeSize as any}
+                      value={data.homeSize as string}
                       options={[
                         { label: 'Small', val: 'Small' },
                         { label: 'Medium', val: 'Medium' },
@@ -342,7 +346,7 @@ export default function Onboarding() {
                   <div>
                     <label className="mb-2 block text-sm font-medium text-white/60">Shopping habits</label>
                     <OptionGroup
-                      value={data.consumptionModifiers as any}
+                      value={data.consumptionModifiers as string}
                       options={[
                         { label: '🛍️ Mostly New', val: 'Mostly New' },
                         { label: '♻️ Secondhand', val: 'Mostly Secondhand' },
@@ -358,18 +362,20 @@ export default function Onboarding() {
             <div className="mt-8 flex gap-3">
               {step > 0 && (
                 <button
+                  type="button"
                   onClick={() => setStep((s) => s - 1)}
-                  className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3 text-sm font-medium text-white/60 transition-all hover:border-white/20 hover:text-white"
+                  className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3 text-sm font-medium text-white/70 transition-all hover:border-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                 >
-                  <ChevronLeft className="h-4 w-4" /> Back
+                  <ChevronLeft className="h-4 w-4" aria-hidden="true" /> Back
                 </button>
               )}
               <button
+                type="button"
                 onClick={step === STEPS.length - 1 ? finish : () => setStep((s) => s + 1)}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 py-3 font-bold text-white shadow-lg shadow-emerald-500/20 transition-all hover:from-emerald-500 hover:to-teal-500 hover:shadow-emerald-500/40 hover:scale-[1.02] active:scale-100"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 py-3 font-bold text-white shadow-lg shadow-emerald-500/20 transition-all hover:from-emerald-500 hover:to-teal-500 hover:shadow-emerald-500/40 hover:scale-[1.02] active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
               >
                 {step === STEPS.length - 1 ? '🌍 See My World' : 'Continue'}
-                {step < STEPS.length - 1 && <ChevronRight className="h-4 w-4" />}
+                {step < STEPS.length - 1 && <ChevronRight className="h-4 w-4" aria-hidden="true" />}
               </button>
             </div>
           </motion.div>

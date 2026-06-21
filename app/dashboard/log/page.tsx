@@ -69,7 +69,7 @@ export default function LogPage() {
       <div className="grid gap-6 md:grid-cols-2">
         {/* Quick log */}
         <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-5">
-          <h2 className="mb-4 font-semibold text-white">Quick Log</h2>
+              <h2 className="mb-2 text-lg font-bold text-white">Let&apos;s get logging</h2>
           {/* Category filter */}
           <div className="mb-4 flex flex-wrap gap-2">
             {CATEGORIES.map(c => (

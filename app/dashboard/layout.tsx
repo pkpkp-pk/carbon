@@ -25,6 +25,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     if (raw) {
       try { setUser(JSON.parse(raw)) } catch { setUser(null) }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]) // re-check whenever route changes so sidebar updates immediately after login
 
   const handleSignOut = () => {
@@ -57,13 +58,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               <Link
                 key={href}
                 href={href}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                aria-current={active ? 'page' : undefined}
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[oklch(12%_0.009_240)] ${
                   active
                     ? 'bg-emerald-500/15 text-emerald-400'
-                    : 'text-white/40 hover:bg-white/[0.04] hover:text-white/70'
+                    : 'text-white/60 hover:bg-white/[0.04] hover:text-white'
                 }`}
               >
-                <Icon className={`h-4 w-4 ${active ? 'text-emerald-400' : ''}`} />
+                <Icon className={`h-4 w-4 ${active ? 'text-emerald-400' : ''}`} aria-hidden="true" />
                 {label}
               </Link>
             )
@@ -103,9 +105,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </div>
               <button
                 onClick={handleSignOut}
-                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-white/8 py-1.5 text-xs font-medium text-white/40 transition-all hover:border-red-500/30 hover:text-red-400"
+                aria-label="Sign out of your account"
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-white/8 py-1.5 text-xs font-medium text-white/60 transition-all hover:border-red-500/30 hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[oklch(12%_0.009_240)]"
               >
-                <LogOut className="h-3.5 w-3.5" /> Sign out
+                <LogOut className="h-3.5 w-3.5" aria-hidden="true" /> Sign out
               </button>
             </div>
           )}

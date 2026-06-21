@@ -53,25 +53,21 @@ const CFG = {
  *  High-Detail SVG Components
  * ───────────────────────────────────────────────────────────────────────────── */
 
-function OakTree({ x, y, scale, color }: { x:number; y:number; scale:number; color:string }) {
-  return (
-    <g transform={`translate(${x},${y}) scale(${scale})`}>
-      <path d="M 45,90 L 55,90 L 52,150 L 48,150 Z" fill="#2d1c10" />
-      <path d="M 50,10 C 20,10 0,30 0,55 C 0,75 15,90 35,90 L 65,90 C 85,90 100,75 100,55 C 100,30 80,10 50,10 Z" fill={color} />
-      <path d="M 50,20 C 30,20 15,35 15,55 C 15,70 25,80 40,80 L 60,80 C 75,80 85,70 85,55 C 85,35 70,20 50,20 Z" fill="#ffffff" opacity="0.08" />
-    </g>
-  )
-}
+const OakTree = ({ x, y, scale = 1, color }: { x: number; y: number; scale?: number; color: string }) => (
+  <g transform={`translate(${x}, ${y}) scale(${scale})`}>
+    <path d="M 45,90 L 55,90 L 52,150 L 48,150 Z" fill="#2d1c10" />
+    <path d="M 50,10 C 20,10 0,30 0,55 C 0,75 15,90 35,90 L 65,90 C 85,90 100,75 100,55 C 100,30 80,10 50,10 Z" fill={color} />
+    <path d="M 50,20 C 30,20 15,35 15,55 C 15,70 25,80 40,80 L 60,80 C 75,80 85,70 85,55 C 85,35 70,20 50,20 Z" fill="#ffffff" opacity="0.08" />
+  </g>
+)
 
-function PineTree({ x, y, scale, color }: { x:number; y:number; scale:number; color:string }) {
-  return (
-    <g transform={`translate(${x},${y}) scale(${scale})`}>
-      <path d="M 45,120 L 55,120 L 55,150 L 45,150 Z" fill="#2d1c10" />
-      <path d="M 50,0 L 90,50 L 70,50 L 100,90 L 80,90 L 110,130 L -10,130 L 20,90 L 0,90 L 30,50 L 10,50 Z" fill={color} />
-      <path d="M 50,0 L 50,130 L -10,130 L 20,90 L 0,90 L 30,50 L 10,50 Z" fill="#ffffff" opacity="0.08" />
-    </g>
-  )
-}
+const PineTree = ({ x, y, scale = 1, color }: { x: number; y: number; scale?: number; color: string }) => (
+  <g transform={`translate(${x}, ${y}) scale(${scale})`}>
+    <path d="M 45,120 L 55,120 L 55,150 L 45,150 Z" fill="#2d1c10" />
+    <path d="M 50,0 L 90,50 L 70,50 L 100,90 L 80,90 L 110,130 L -10,130 L 20,90 L 0,90 L 30,50 L 10,50 Z" fill={color} />
+    <path d="M 50,0 L 50,130 L -10,130 L 20,90 L 0,90 L 30,50 L 10,50 Z" fill="#ffffff" opacity="0.08" />
+  </g>
+)
 
 function Skyscraper({ x, y, scale, color, winColor }: { x:number; y:number; scale:number; color:string; winColor:string }) {
   return (
@@ -148,10 +144,8 @@ function Bird({ x, y, scale, color, delay }: { x:number; y:number; scale:number;
     ? "M 0,25 Q 25,0 50,25 Q 75,0 100,25 Q 70,20 50,40 Q 30,20 0,25 Z"
     : "M 0,25 Q 25,50 50,25 Q 75,50 100,25 Q 70,20 50,10 Q 30,20 0,25 Z"
   return (
-    <motion.g animate={{ x: [-100, 1100] }} transition={{ duration: 15, repeat: Infinity, delay, ease: 'linear' }} style={{ y }}>
-      <g transform={`scale(${scale})`}>
-        <path d={d} fill={color} />
-      </g>
+    <motion.g animate={{ x: [x - 100, x + 1100] }} transition={{ duration: 15, repeat: Infinity, delay, ease: 'linear' }} style={{ y }}>
+      <path d={d} fill={color} transform={`scale(${scale})`} />
     </motion.g>
   )
 }
@@ -159,8 +153,8 @@ function Bird({ x, y, scale, color, delay }: { x:number; y:number; scale:number;
 function Car({ x, y, scale, color, delay, direction }: { x:number; y:number; scale:number; color:string; delay:number; direction:1|-1 }) {
   return (
     <motion.g 
-      initial={{ x: direction === 1 ? -100 : 1100 }}
-      animate={{ x: direction === 1 ? 1100 : -100 }} 
+      initial={{ x: direction === 1 ? x - 100 : x + 1100 }}
+      animate={{ x: direction === 1 ? x + 1100 : x - 100 }} 
       transition={{ duration: 8, repeat: Infinity, delay, ease: 'linear' }} 
       style={{ y }}
     >
@@ -192,22 +186,17 @@ function DetailedCloud({ x, y, scale, speed, delay, opacity }: { x:number; y:num
  *  Main Component
  * ───────────────────────────────────────────────────────────────────────────── */
 
+const STARS = Array.from({length: 40}).map((_, i) => ({
+  x: ((i * 37) % 1000),
+  y: ((i * 19) % 250),
+  r: ((i % 3) * 0.5 + 0.5),
+  d: (i % 5) * 0.5,
+  dur: 3 + (i % 4)
+}))
+
 export default function VirtualWorld({ state }: VirtualWorldProps) {
-  const [mounted, setMounted] = useState(false)
-  const [cur, setCur] = useState(state)
-  const prev = useRef(state)
-
-  useEffect(() => { setMounted(true) }, [])
-  useEffect(() => { if (state !== prev.current) { prev.current = state; setCur(state) } }, [state])
-
-  if (!mounted) return (
-    <div className="w-full h-full rounded-xl bg-[oklch(14%_0.01_240)] animate-pulse flex items-center justify-center">
-      <p className="text-white/20 text-sm">Loading virtual environment…</p>
-    </div>
-  )
-
-  const c = CFG[cur]
-  const isNight = cur === 'Thriving'
+  const c = CFG[state]
+  const isNight = state === 'Thriving'
 
   return (
     <div className="relative w-full h-full overflow-hidden rounded-xl select-none">
@@ -229,11 +218,11 @@ export default function VirtualWorld({ state }: VirtualWorldProps) {
 
         {/* 1.5 Stars (Thriving/Night) */}
         <AnimatePresence>
-          {isNight && Array.from({length: 40}).map((_, i) => (
+          {isNight && STARS.map((s, i) => (
             <motion.circle key={i}
-              cx={Math.random() * 1000} cy={Math.random() * 250} r={Math.random() * 1.5 + 0.5} fill="#fff"
+              cx={s.x} cy={s.y} r={s.r} fill="#fff"
               initial={{ opacity: 0 }} animate={{ opacity: [0.1, 0.8, 0.1] }} exit={{ opacity: 0 }}
-              transition={{ duration: 3 + Math.random() * 3, repeat: Infinity, delay: Math.random() * 2 }} />
+              transition={{ duration: s.dur, repeat: Infinity, delay: s.d }} />
           ))}
         </AnimatePresence>
 
@@ -349,12 +338,12 @@ export default function VirtualWorld({ state }: VirtualWorldProps) {
 
       {/* State badge */}
       <div className="absolute top-4 right-4 pointer-events-none">
-        <motion.span key={cur} initial={{ opacity:0, y:-4 }} animate={{ opacity:1, y:0 }}
+        <motion.span key={state} initial={{ opacity:0, y:-4 }} animate={{ opacity:1, y:0 }}
           className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-widest backdrop-blur-md shadow-xl"
           style={{ background:`${c.win}18`, color:c.win, border:`1px solid ${c.win}40` }}>
           <motion.span className="h-2 w-2 rounded-full" style={{ backgroundColor:c.win, boxShadow: `0 0 8px ${c.win}` }}
             animate={{ opacity:[1,0.4,1] }} transition={{ duration:1.5, repeat:Infinity }} />
-          {cur}
+          {state}
         </motion.span>
       </div>
 
