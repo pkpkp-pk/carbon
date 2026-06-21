@@ -1,16 +1,7 @@
 import { PrismaClient } from '@prisma/client'
-import { Pool, neonConfig } from '@neondatabase/serverless'
-import { PrismaNeon } from '@prisma/adapter-neon'
-import ws from 'ws'
-
-// Required for Neon WebSocket in Node.js (local dev)
-neonConfig.webSocketConstructor = ws
 
 const prismaClientSingleton = () => {
-  const connectionString = process.env.DATABASE_URL!
-  const pool = new Pool({ connectionString })
-  const adapter = new PrismaNeon(pool as any)
-  return new PrismaClient({ adapter })
+  return new PrismaClient()
 }
 
 declare global {

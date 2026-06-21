@@ -30,8 +30,8 @@ export async function POST(req: Request) {
         })
 
     return NextResponse.json({ id: user.id, username: user.username, grn_id: user.grn_id })
-  } catch (err) {
+  } catch (err: any) {
     console.error('[register]', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: err?.message || String(err) || 'Internal server error' }, { status: 500 })
   }
 }

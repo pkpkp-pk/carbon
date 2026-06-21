@@ -52,9 +52,9 @@ export async function POST(req: Request) {
     })
 
     return NextResponse.json({ baseline, recordId: record.id })
-  } catch (err) {
+  } catch (err: any) {
     console.error('[onboarding]', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: err?.message || String(err) || 'Internal server error' }, { status: 500 })
   }
 }
 
