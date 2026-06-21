@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import prisma from '@/lib/prisma'
+import bcrypt from 'bcryptjs'
 import { generateGrnId } from '@/lib/grn'
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -8,39 +9,47 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        username: { label: "Username", type: "text" },
-        password: { label: "Password", type: "password" }
+        username: { label: 'Username', type: 'text' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) return null
+        const username = credentials.username as string
+        const password = credentials.password as string
 
-        // Dummy simple auth for now (since we don't have bcrypt setup)
-        // Check if user exists
-        let user = await prisma.user.findUnique({
-          where: { username: credentials.username as string }
-        })
+        let user = await prisma.user.findUnique({ where: { username } })
 
         if (!user) {
-          // If user doesn't exist, register them (simple flow)
+          // Register new user
+          const hash = await bcrypt.hash(password, 12)
           user = await prisma.user.create({
             data: {
-              username: credentials.username as string,
-              password_hash: credentials.password as string, // WARNING: Not hashed for simplicity in this demo
+              username,
+              password_hash: hash,
               grn_id: generateGrnId(),
-              is_guest: false
-            }
+              is_guest: false,
+            },
           })
         } else {
           // Validate password
-          if (user.password_hash !== credentials.password) return null
+          const valid = await bcrypt.compare(password, user.password_hash ?? '')
+          if (!valid) return null
         }
 
         return { id: user.id, name: user.username }
-      }
-    })
+      },
+    }),
   ],
   session: { strategy: 'jwt' },
-  pages: {
-    signIn: '/login',
-  }
+  callbacks: {
+    jwt({ token, user }) {
+      if (user) { token.id = user.id }
+      return token
+    },
+    session({ session, token }) {
+      if (session.user) { (session.user as any).id = token.id }
+      return session
+    },
+  },
+  pages: { signIn: '/login' },
 })
