@@ -15,8 +15,15 @@ export async function POST(req: Request) {
     }
 
     const existing = await prisma.user.findUnique({ where: { username } })
+    
+    // If the user already exists and is not a guest, treat this as a login attempt
     if (existing && !existing.is_guest) {
-      return NextResponse.json({ error: 'Username already taken' }, { status: 409 })
+      const isValid = await bcrypt.compare(password, existing.password_hash ?? '')
+      if (isValid) {
+        return NextResponse.json({ id: existing.id, username: existing.username, grn_id: existing.grn_id })
+      } else {
+        return NextResponse.json({ error: 'Username taken or invalid password' }, { status: 401 })
+      }
     }
 
     const hash = await bcrypt.hash(password, 12)
